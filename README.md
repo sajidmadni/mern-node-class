@@ -1,0 +1,1 @@
+# mern-node-class
