@@ -1,8 +1,8 @@
 const express = require('express')
 const route = express.Router();
 const productsController = require("../controllers/products");
-const { check, validationResult } = require('express-validator'); 
-const { application } = require('express');
+const { check, validationResult } = require('express-validator');
+const isAuth = require("../middlewares/is-auth")
 
 // app.use();
 /*
@@ -15,13 +15,13 @@ route.get('/', productsController.getAllProducts);
 * This method is to get the specific data by id
 * GET Method URL: http://localhost:5000/api/products/1
 */
-route.get('/:pid', productsController.getProductsById);
+route.get('/:pid', isAuth, productsController.getProductsById);
 
 /*
 * This method is to store the data in to the products array
 * POST method URL: http://localhost:5000/api/products
 */
-route.post('/', [
+route.post('/', isAuth, [
   check("title")
     .not()
     .isEmpty()
@@ -40,13 +40,14 @@ route.post('/', [
 * This method is to update the data of a product
 * PATCH method http://localhost:5000/api/products/1
 */
-route.patch("/:pid", productsController.updateProduct)
+route.patch("/:pid", isAuth,productsController.updateProduct)
 
 /*
 * This method is to delete the specific product by id
 * DELETE method http://localhost:5000/api/products/1
 */
-route.delete("/:pid", productsController.deleteProduct)
+route.delete("/:pid", isAuth, productsController.deleteProduct)
+
 
 module.exports = route;
 

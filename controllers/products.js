@@ -1,4 +1,3 @@
-const express = require("express");
 const { check, validationResult } = require('express-validator');
 
 // Temporary products data that later will be replaced with DB(Mongo)
@@ -44,10 +43,17 @@ const products = [
   ];
 
 const getAllProducts = (req, res, next) => {
-    res.json({products})
+    // Generate Cookie
+    // res.setHeader('Set-Cookie', "isLogged=true; Max-Age=1000; HttpOnly")
+    req.session.userId = 3;
+    console.log(req.session.userId)
+    // Render views using pug
+    res.render('products', {prod: products, title: "Products Data"})
 }
 
 const getProductsById = (req, res, next) => { 
+    // Get cookie value here
+    // console.log(req.get("Cookie").trim().split("=")[1].trim())
     let product = products.find( (p) => p.id == req.params.pid)
     if(!product){
         res.status(404).json(({message: "Product not found"}))
@@ -60,7 +66,6 @@ const saveProduct = (req, res, next) => {
     if(!error.isEmpty()){
         return res.status(400).json({message: error.array()})
     }
-
 
     const { id, title, description, price } = req.body;
 
@@ -95,4 +100,3 @@ exports.getProductsById = getProductsById;
 exports.saveProduct = saveProduct;
 exports.updateProduct = updateProduct;
 exports.deleteProduct = deleteProduct;
-
