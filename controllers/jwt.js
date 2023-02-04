@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const express = require("express");
+const app = express();
 
 getLoggedInToken = (userId) => {
     return jwt.sign(
@@ -11,7 +13,9 @@ getLoggedInToken = (userId) => {
 verifyToken = (token, secretVal) => {
     return jwt.verify(token, secretVal, function(err, decoded) {
         console.log("Return user decode value")
-        // console.log(decoded.user_id) // bar
+        console.log(decoded) // bar
+        app.set('user_id', decoded.user_id)
+        console.log(app.get("user_id"))
         return decoded;
     })
 }
