@@ -1,20 +1,6 @@
 const { check, validationResult } = require('express-validator');
-// const mongoose = require("mongoose");
-const connectMongoose = require("../middlewares/mongoose_connect")
-const Product = require("../models/products");
-connectMongoose.connectMongoose;
-const express = require("express");
-const app = express();
-
-// const url = 'mongodb+srv://admin_root:sAMrCgD7uu2ClLUS@cluster0.8shvuj6.mongodb.net/mern_test?retryWrites=true&w=majority';
-// Create DB connection
-// mongoose.connect(
-//   url
-// ).then(() => {
-//   console.log("DB connected successfully")
-// }).catch(() => {
-//   console.log("Something went wrong while connecting DB.")
-// });
+const MongoClient = require("mongodb").MongoClient;
+const url = 'mongodb+srv://admin_root:sAMrCgD7uu2ClLUS@cluster0.8shvuj6.mongodb.net/?retryWrites=true&w=majority';
 
 // Temporary products data that later will be replaced with DB(Mongo)
 const products = [
@@ -59,14 +45,23 @@ const products = [
   ];
 
 const getAllProducts = async (req, res, next) => {
-    const products = await Product.find().exec();
+    // Generate Cookie
+    // res.setHeader('Set-Cookie', "isLogged=true; Max-Age=1000; HttpOnly")
+    req.session.userId = 3;
+    console.log(req.session.userId)
+    // Render views using pug
+    // res.render('products', {prod: products, title: "Products Data"})
+    const client = new MongoClient(url);
+    // const connection = client.connect();
+    const db = client.db("mern_test");
+    const products = await db.collection("products").find().toArray();
     res.json({products});
 }
 
-const getProductsById = async (req, res, next) => { 
-    const prodId = req.params.pid;
-
-    let product = await Product.find({price: 400}).exec();
+const getProductsById = (req, res, next) => { 
+    // Get cookie value here
+    // console.log(req.get("Cookie").trim().split("=")[1].trim())
+    let product = products.find( (p) => p.id == req.params.pid)
     if(!product){
         res.status(404).json(({message: "Product not found"}))
     }
@@ -75,65 +70,37 @@ const getProductsById = async (req, res, next) => {
 
 const saveProduct = async (req, res, next) => {
   const error = validationResult(req);
-  // Error handling
   if(!error.isEmpty()){
-      return res.status(400).json({message: error.array()})
+    return res.status(400).json({message: error.array()})
   }
-
-  const { title, description, price } = req.body;
-  console.log("Save product");
-  console.log(app.get("user_id"))
-  const productData = {
-    title, 
-    description, 
-    price,
-    user_id: "63de0806cdf12d276efe911b"
+  const { id, title, description, price } = req.body;
+  const product = {
+    id, title, description, price
   };
-  const createdProduct = new Product(productData);
-
-  const result = await createdProduct.save();
-  res.status(201).json({result})
+  const client = new MongoClient(url);
+  const db = client.db("mern_test");
+  const results = await db.collection("products").insertOne(product);
+  client.close();
+  // products.push(product);
+  res.status(201).json({product})
 }
 
-const updateProduct = async (req, res, next) => {
+const updateProduct = (req, res, next) => {
     const productId = req.params.pid;
     const { title, description } = req.body;
   
     // Copy the products to avoid any changes before make sure the status 200 returns
-    // const updatedProduct = {...products.find(p => p.id == productId)}
-    // const productIndex = products.findIndex(p => p.id == productId);
-    // updatedProduct.title = title;
-    // updatedProduct.description = description;
-    // products[productIndex] = updatedProduct;
-    let product;
-    try {
-      product = await Product.findById(productId).exec();
-    } catch (error) {
-      
-    }
-
-    product.title = title;
-    product.description = description;
-
-    try {
-      await product.save();
-    } catch (error) {
-      
-    }
-
-    res.status(200).json({product}) 
+    const updatedProduct = {...products.find(p => p.id == productId)}
+    const productIndex = products.findIndex(p => p.id == productId);
+    updatedProduct.title = title;
+    updatedProduct.description = description;
+    products[productIndex] = updatedProduct;
+    res.status(200).json({product: updatedProduct}) 
   };
 
-  const deleteProduct = async (req, res, next) => {
-    const productId = req.params.pid;
-    // products = products.filter( p => p.id != placeId);
-    let product;
-    try {
-      product = await Product.findById(productId).exec();
-    } catch (error) {
-      
-    }
-    product.remove();
+  const deleteProduct = (req, res, next) => {
+    const placeId = req.params.pid;
+    products = products.filter( p => p.id != placeId);
     res.status(200).json({message: "product deleted successfully"})
   }
 

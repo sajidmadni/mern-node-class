@@ -2,14 +2,14 @@ const express = require('express')
 const route = express.Router();
 const productsController = require("../controllers/products");
 const { check, validationResult } = require('express-validator');
-const isAuth = require("../middlewares/is-auth")
+const isAuth = require("../middlewares/is-auth");
 
 // app.use();
 /*
 * This method is to get all the products data
 * GET Method URL: http://localhost:5000/api/products
 */
-route.get('/', productsController.getAllProducts);
+route.get('/', isAuth, productsController.getAllProducts);
 
 /*
 * This method is to get the specific data by id
