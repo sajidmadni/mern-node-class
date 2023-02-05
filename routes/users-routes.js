@@ -3,6 +3,7 @@ const route = express.Router();
 const usersController = require("../controllers/users");
 const { check, validationResult } = require('express-validator'); 
 const isAuth = require("../middlewares/is-auth")
+const fileUpload = require("../middlewares/file-upload")
 
 /*
 * This method is to register user
@@ -14,7 +15,7 @@ route.post('/register', usersController.register);
 * This method is to login user
 * POST Method URL: http://localhost:5000/api/users/login
 */
-route.post('/login', usersController.login);
+route.post('/login', fileUpload.single('image'), usersController.login);
 
 /*
 * This method is to get all users
