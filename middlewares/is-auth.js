@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
     if(!authToken){
         return res.redirect("/")
     }
-    const isAuthenticated = jwtFile.verifyToken(authToken[1], 'my-secret-has-here')
+    const isAuthenticated = jwtFile.verifyToken(authToken[1], process.env.DB_NAME)
     if(!isAuthenticated){
         // res.status(401).json({message: "You don't have access to this route"})
         return res.status(401).redirect("/")

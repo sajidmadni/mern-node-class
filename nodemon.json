@@ -1,0 +1,8 @@
+{
+    "env": {
+        "JWT_SECRET_KE": "my-secret-has-here",
+        "DB_USER": "admin_root",
+        "DB_PASSWORD": "sAMrCgD7uu2ClLUS",
+        "DB_NAME": "mern_test"
+    }
+}

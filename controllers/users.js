@@ -41,15 +41,15 @@ const login = async (req, res, next) => {
   }
   const { email, password } = req.body;
 
-  const userData = { 
-    firstName: "New User", 
-    lastName: "Last user name", 
-    email: "test@test.com", 
-    password: "password",
-    profileImg: req.file.path
-  };
-  const createdUser = new User(userData)
-  await createdUser.save();
+  // const userData = { 
+  //   firstName: "New User", 
+  //   lastName: "Last user name", 
+  //   email: "test@test.com", 
+  //   password: "password",
+  //   profileImg: req.file.path
+  // };
+  // const createdUser = new User(userData)
+  // await createdUser.save();
 
   // let user = users.find( (p) => p.email == email && p.password == password)
   const user = await User.findOne({email: email, password: password}).exec();
